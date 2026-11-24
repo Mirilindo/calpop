@@ -4,7 +4,7 @@ A calendar popup for Wayland bars. Click the clock in your bar: a small month
 calendar opens against the bar (the `[position]` setting puts it right under the clock).
 Click again, press `Esc`, or click anywhere else on that screen: it closes.
 
-<p align="center"><img src="docs/screenshot.png" alt="calpop: a month calendar popup" width="374"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/Mirilindo/calpop/main/docs/screenshot.png" alt="calpop: a month calendar popup" width="374"></p>
 
 It is a calendar, nothing more: no agenda, no events, no reminders, no network access.
 
@@ -86,7 +86,7 @@ mkdir -p ~/.config/calpop
 calpop --default-config > ~/.config/calpop/config.toml
 ```
 
-The same file is in [`examples/config.toml`](examples/config.toml). The essentials:
+The same file is in [`examples/config.toml`](https://github.com/Mirilindo/calpop/blob/main/examples/config.toml). The essentials:
 
 ```toml
 first_day = "monday"      # monday … sunday, or "locale"
@@ -208,4 +208,4 @@ Inspired by [waycal](https://github.com/forrestknight/waycal) by Forrest Knight 
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/Mirilindo/calpop/blob/main/LICENSE)
