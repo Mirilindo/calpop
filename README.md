@@ -1,8 +1,9 @@
 # calpop
 
-A calendar popup for Wayland bars. Click the clock in your bar: a small month
-calendar opens against the bar (the `[position]` setting puts it right under the clock).
-Click again, press `Esc`, or click anywhere else on that screen: it closes.
+A calendar popup for Wayland bars. Run it from your bar's clock, or from a key if your bar
+cannot run a command on click: a small month calendar opens against the bar (the `[position]`
+setting puts it right under the clock). Run it again, press `Esc`, or click anywhere else on
+that screen: it closes.
 
 <p align="center"><img src="https://raw.githubusercontent.com/Mirilindo/calpop/main/docs/screenshot.png" alt="calpop: a month calendar popup" width="374"></p>
 
