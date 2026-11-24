@@ -2,7 +2,7 @@
 
 A calendar popup for Wayland bars. Click the clock in your bar: a small month
 calendar opens against the bar (the `[position]` setting puts it right under the clock).
-Click again, press `Esc`, or click anywhere else: it closes.
+Click again, press `Esc`, or click anywhere else on that screen: it closes.
 
 <p align="center"><img src="docs/screenshot.png" alt="calpop: a month calendar popup" width="374"></p>
 
@@ -19,9 +19,10 @@ It is a calendar, nothing more: no agenda, no events, no reminders, no network a
 
 ## Requirements
 
-- A Wayland compositor with the **wlr-layer-shell** protocol: Hyprland, Sway, river, niri, Wayfire,
-  labwc… **GNOME is not supported** (no layer-shell), neither is X11: calpop says so and exits.
-  Tested on Hyprland 0.57 with Waybar 0.16. KDE Plasma: not tested yet.
+- A Wayland compositor with the **wlr-layer-shell** protocol: Hyprland, KDE Plasma, Sway, river,
+  niri, Wayfire, labwc… **GNOME is not supported** (no layer-shell), neither is X11:
+  calpop says so and exits.
+  Tested on Hyprland 0.57 with Waybar 0.16, and on KDE Plasma 6.8 (opened with a shortcut).
 - GTK 4.12 or later and [gtk4-layer-shell](https://github.com/wmww/gtk4-layer-shell).
 - To build it: Rust 1.93 or later.
 
@@ -71,6 +72,9 @@ hl.bind("SUPER + C", hl.dsp.exec_cmd("calpop"))
 # Sway
 bindsym $mod+c exec calpop
 ```
+
+On KDE Plasma: System Settings › Keyboard › Shortcuts › Add New › Command or Script…,
+then `calpop` and the key you want.
 
 ## Configuration
 

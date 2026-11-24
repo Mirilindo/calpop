@@ -29,7 +29,8 @@ edge = "top"              # top | bottom: the screen edge your bar is on
 align = "center"          # left | center | right
 margin_x = 8              # distance from the left/right screen edge, in px (not for center)
 margin_y = 6              # distance from the bar, in px
-output = ""               # screen to open on, e.g. "DP-1" (hyprctl monitors); empty = focused screen
+output = ""               # screen to open on, e.g. "DP-1"; empty = focused screen
+                          # names: hyprctl monitors (Hyprland), kscreen-doctor -o (KDE)
 
 [font]
 family = ""               # e.g. "Fira Sans"; empty = your GTK font
