@@ -1,0 +1,148 @@
+.TH CALPOP 1 "2026-11-24" "calpop 0.1.0" "User Commands"
+.SH NAME
+calpop \- a calendar popup for Wayland bars
+.SH SYNOPSIS
+.B calpop
+.RB [ \-c
+.IR PATH ]
+.br
+.B calpop
+.B \-\-default\-config
+.SH DESCRIPTION
+.B calpop
+opens a small month calendar anchored under (or above) your bar.
+Running it again closes it, so it can be used directly as the click
+command of a bar module, for example Waybar's
+.B on\-click
+on the clock, or bound to a key.
+.PP
+It needs a Wayland compositor that supports the wlr\-layer\-shell
+protocol (Hyprland, Sway, river, niri, Wayfire, labwc\&...).
+GNOME and X11 are not supported.
+.PP
+There is no agenda: no events, no reminders, no network access.
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config " " \fIPATH\fR
+Read the configuration from
+.I PATH
+instead of the default location.
+.TP
+.B \-\-default\-config
+Print a configuration file that lists every setting with its default
+value and a short explanation, then exit.
+.TP
+.BR \-h ", " \-\-help
+Show a short help and exit.
+.TP
+.BR \-V ", " \-\-version
+Show the version and exit.
+.SH CLOSING
+The popup closes with
+.BR Esc " or " q ,
+with a click anywhere outside it, or when
+.B calpop
+is run again.
+While it is open it takes the keyboard, like a menu.
+.SH KEYS
+.TP
+.BR "Left" ", " "h" ", " "Page Up"
+Previous month.
+.TP
+.BR "Right" ", " "l" ", " "Page Down"
+Next month.
+.TP
+.BR "Up" ", " "k"
+Previous year.
+.TP
+.BR "Down" ", " "j"
+Next year.
+.TP
+.BR "Home" ", " "t"
+Back to the current month.
+.PP
+The mouse wheel moves one month per notch.
+Clicking the title or the date at the bottom goes back to today.
+.SH CONFIGURATION
+The configuration is read from
+.IR $XDG_CONFIG_HOME/calpop/config.toml ,
+by default
+.IR ~/.config/calpop/config.toml ,
+each time the popup opens: no restart is needed.
+Every key is optional.
+To start from a file that lists them all:
+.PP
+.RS
+.B calpop \-\-default\-config > ~/.config/calpop/config.toml
+.RE
+.PP
+Main settings: first day of the week, week numbers (ISO 8601, US or
+from the locale), language of day and month names, position (screen
+edge, alignment, margins, screen), font, colors, corner radius,
+opacity.
+.PP
+Colors can come from a theme file, so the popup follows a theme that
+changes with the wallpaper.
+.B theme
+points to a file with lines in one of these forms, and colors are then
+written
+.BR @name :
+.PP
+.RS
+.nf
+@define\-color name #rrggbb;   (GTK, Waybar, matugen, wallust)
+\-\-name: #rrggbb;              (CSS variables, pywal)
+name = "#rrggbb"              (Omarchy)
+.fi
+.RE
+.SH STYLE
+A
+.I style.css
+file next to
+.I config.toml
+is applied last and can change anything with GTK4 CSS.
+Classes:
+.BR calpop\-root " (the popup), " title ", " nav " (arrows), "
+.BR weekday ", " week " (week numbers), " day
+.RB "(with " today ", " weekend ", " other ),
+.BR footer .
+For example:
+.PP
+.RS
+.nf
+\&.day { font\-weight: bold; }
+\&.today { border\-radius: 6px; }
+.fi
+.RE
+.SH ENVIRONMENT
+.TP
+.B LC_TIME
+Language of day and month names and, with
+.BR first_day " or " week_numbering " set to " locale ,
+the week rules.
+The
+.B locale
+setting overrides it, and
+.BR LC_ALL ,
+for calpop only.
+.TP
+.B GSK_RENDERER
+calpop uses the
+.B cairo
+renderer unless this variable is set: less memory (about 27 MB
+instead of 36 MB with Vulkan).
+.SH FILES
+.TP
+.I ~/.config/calpop/config.toml
+Settings.
+.TP
+.I ~/.config/calpop/style.css
+Optional extra CSS.
+.SH EXIT STATUS
+0 on success, 1 on an unknown argument, a configuration error, or when
+the desktop does not support layer\-shell.
+.SH SEE ALSO
+.BR waybar (5),
+.BR waybar\-clock (5)
+.SH LICENSE
+MIT.

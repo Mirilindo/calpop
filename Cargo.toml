@@ -1,0 +1,17 @@
+[package]
+name = "calpop"
+version = "0.1.0"
+edition = "2024"
+description = "A calendar popup for Wayland bars (Waybar…), anchored with layer-shell"
+license = "MIT"
+repository = "https://github.com/Mirilindo/calpop"
+readme = "README.md"
+keywords = ["calendar", "waybar", "wayland", "layer-shell", "gtk4"]
+categories = ["gui", "date-and-time"]
+include = ["src/**/*", "examples/config.toml", "calpop.1", "README.md", "LICENSE", "Cargo.toml", "Cargo.lock"]
+
+[dependencies]
+gtk4 = { version = "0.11.5", features = ["v4_12"] }
+gtk4-layer-shell = "0.9.0"
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "1.2.2"

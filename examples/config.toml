@@ -1,0 +1,50 @@
+# calpop configuration — every setting, with its default value.
+#
+# Location: ~/.config/calpop/config.toml (or: calpop --config PATH)
+# Every key is optional: delete the lines you don't change.
+# Read again each time the popup opens: no restart needed.
+# A style.css next to this file is applied last (free GTK4 CSS).
+#
+# Get this file: calpop --default-config > ~/.config/calpop/config.toml
+
+first_day = "monday"      # monday … sunday, or "locale" (from your system language)
+week_numbers = false      # show week numbers in a left column
+week_numbering = "iso"    # iso    = ISO 8601 (Europe): week 1 holds the first Thursday
+                          # us     = week 1 holds January 1st (US, Canada, Middle East…)
+                          # locale = the rule of your system language
+reverse_scroll = false    # true: wheel down = previous month
+footer = true             # today's full date at the bottom (click: back to today)
+locale = ""               # language of day and month names, e.g. "en_US.UTF-8"
+                          # empty = your system's LC_TIME; must be installed (locale -a)
+
+# Theme file whose colors can be used below as "@name". Three formats are read:
+#   @define-color name #rrggbb;   (GTK, Waybar, matugen, wallust…)
+#   --name: #rrggbb;              (CSS variables, pywal…)
+#   name = "#rrggbb"              (Omarchy: ~/.config/omarchy/current/theme/colors.toml)
+# Read at each opening, so the popup follows a theme that changes with the wallpaper.
+theme = ""
+
+[position]
+edge = "top"              # top | bottom: the screen edge your bar is on
+align = "center"          # left | center | right
+margin_x = 8              # distance from the left/right screen edge, in px (not for center)
+margin_y = 6              # distance from the bar, in px
+output = ""               # screen to open on, e.g. "DP-1" (hyprctl monitors); empty = focused screen
+
+[font]
+family = ""               # e.g. "Fira Sans"; empty = your GTK font
+size = 14                 # in px; the whole popup scales with it
+
+[colors]                  # "#rrggbb", any GTK color ("rgba(…)", "alpha(…)"), or "@name" from the theme
+background = "#1e1f25"
+foreground = "#e2e2e9"
+muted      = "#8e9099"    # weekday names, week numbers, days of other months
+accent     = "#adc6ff"    # today
+on_accent  = "#102f60"    # text on today
+border     = "#33353a"
+hover      = "#2b2d33"
+
+[style]
+radius = 16               # corner radius of the popup, in px
+opacity = 0.97            # background opacity, 0 to 1
+row_gap = 0               # extra space between the rows of days, in px

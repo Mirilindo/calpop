@@ -1,0 +1,5 @@
+/target
+# Local to the author's machines, not part of the project:
+/.cargo/
+/try.sh
+/CLAUDE.md
