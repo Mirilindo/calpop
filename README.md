@@ -29,21 +29,36 @@ It is a calendar, nothing more: no agenda, no events, no reminders, no network a
 
 ## Install
 
+Both ways build calpop on your machine. First install Rust and the GTK 4 and gtk4-layer-shell
+development packages:
+
+```sh
+sudo pacman -S --needed rust gtk4 gtk4-layer-shell           # Arch
+sudo apt install cargo libgtk-4-dev libgtk4-layer-shell-dev  # Debian 13, Ubuntu 26.04+
+sudo dnf install cargo gtk4-devel gtk4-layer-shell-devel     # Fedora 43+
+```
+
+If your distribution's Rust is older than 1.93 (Debian, Ubuntu), install a current one
+with [rustup](https://rustup.rs) instead.
+
+### From crates.io
+
+```sh
+cargo install calpop
+```
+
+This puts `calpop` in `~/.cargo/bin`, which must be in your `PATH`. It does not install the
+man page: for `man calpop`, build from source.
+
 ### From source
 
 ```sh
-# Arch: sudo pacman -S --needed rust gtk4 gtk4-layer-shell
 git clone https://github.com/Mirilindo/calpop
 cd calpop
 cargo build --release
 install -Dm755 target/release/calpop ~/.local/bin/calpop
 install -Dm644 calpop.1 ~/.local/share/man/man1/calpop.1
 ```
-
-On other distributions, install the GTK 4 and gtk4-layer-shell development packages
-(for example `libgtk-4-dev libgtk4-layer-shell-dev` on Debian 13 or Ubuntu 26.04 and later,
-`gtk4-devel gtk4-layer-shell-devel` on Fedora). If your distribution's Rust is older
-than 1.93 (Debian, Ubuntu), install a current one with [rustup](https://rustup.rs).
 
 ## Use it with Waybar
 
