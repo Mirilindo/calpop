@@ -2,6 +2,7 @@
 name = "calpop"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.93"
 description = "A calendar popup for Wayland bars (Waybar…), anchored with layer-shell"
 license = "MIT"
 repository = "https://github.com/Mirilindo/calpop"
