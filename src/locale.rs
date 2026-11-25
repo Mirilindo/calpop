@@ -38,3 +38,50 @@ pub fn week_rules() -> (u32, u32) {
 pub fn week_rules() -> (u32, u32) {
     (0, 4)
 }
+
+/// Switches day and month names (LC_TIME) to `name`, after GTK has set the
+/// locale from the environment. Returns false, changing nothing, when the
+/// C library doesn't have that locale (not installed: see `locale -a`).
+/// Done here rather than through LC_TIME/LC_ALL in the environment, which
+/// would have to be set before GTK starts, so before the config is read.
+#[cfg(all(target_os = "linux", target_env = "gnu"))]
+pub fn set_time(name: &str) -> bool {
+    use std::ffi::{CString, c_char, c_int};
+
+    const LC_TIME: c_int = 2; // glibc
+
+    unsafe extern "C" {
+        fn setlocale(category: c_int, locale: *const c_char) -> *const c_char;
+    }
+
+    let Ok(name) = CString::new(name) else { return false };
+    // An unknown name leaves the current LC_TIME as it was.
+    unsafe { !setlocale(LC_TIME, name.as_ptr()).is_null() }
+}
+
+#[cfg(not(all(target_os = "linux", target_env = "gnu")))]
+pub fn set_time(_name: &str) -> bool {
+    false
+}
+
+#[cfg(test)]
+mod tests {
+    use super::set_time;
+
+    /// One test only: the locale is global to the process.
+    #[test]
+    fn switches_month_names() {
+        assert!(!set_time("xx_XX.UTF-8"));
+        assert!(!set_time("bad\0name"));
+        let november = || {
+            gtk4::glib::DateTime::from_local(2026, 11, 1, 12, 0, 0.0).unwrap().format("%B").unwrap().to_string()
+        };
+        assert!(set_time("C"));
+        assert_eq!(november(), "November");
+        // Only where French is installed (it is on the author's machines).
+        if set_time("fr_FR.UTF-8") {
+            assert_eq!(november(), "novembre");
+        }
+        assert!(set_time("C"));
+    }
+}

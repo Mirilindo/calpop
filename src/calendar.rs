@@ -96,8 +96,10 @@ impl Month {
         Self { year: d.year, month: d.month }
     }
 
+    /// Moves by `months`, kept within January 1 … December 9999: the years
+    /// GLib can format (the title would be empty outside them).
     pub fn shift(self, months: i32) -> Self {
-        let idx = self.year * 12 + self.month as i32 - 1 + months;
+        let idx = (self.year * 12 + self.month as i32 - 1 + months).clamp(12, 9999 * 12 + 11);
         Self { year: idx.div_euclid(12), month: (idx.rem_euclid(12) + 1) as u32 }
     }
 
@@ -159,6 +161,8 @@ mod tests {
         let m = Month { year: 2026, month: 1 };
         assert_eq!(m.shift(-1), Month { year: 2025, month: 12 });
         assert_eq!(m.shift(12), Month { year: 2027, month: 1 });
+        assert_eq!(Month { year: 1, month: 2 }.shift(-12), Month { year: 1, month: 1 });
+        assert_eq!(Month { year: 9999, month: 11 }.shift(12), Month { year: 9999, month: 12 });
         // Novembre 2026 commence un dimanche : la grille démarre lundi 26 octobre.
         let nov = Month { year: 2026, month: 11 };
         assert_eq!(nov.grid_start(0), Date::new(2026, 10, 26));

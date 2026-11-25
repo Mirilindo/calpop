@@ -23,7 +23,8 @@ pub struct Config {
     /// Empty = the system's LC_TIME. Must be installed (`locale -a`).
     pub locale: String,
     /// Optional theme file with `@define-color` or `--name:` lines; colors
-    /// below can then be written "@name". `~` is expanded.
+    /// below can then be written "@name". `~` is expanded; a relative path
+    /// starts from the config file's folder.
     pub theme: String,
     pub position: Position,
     pub font: Font,
@@ -66,6 +67,8 @@ pub struct Colors {
     pub on_accent: String,
     pub border: String,
     pub hover: String,
+    /// Saturdays and Sundays of the month. Empty = same as `muted`.
+    pub weekend: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
@@ -117,6 +120,7 @@ impl Default for Colors {
             on_accent: "#102f60".into(),
             border: "#33353a".into(),
             hover: "#2b2d33".into(),
+            weekend: String::new(),
         }
     }
 }
@@ -138,14 +142,16 @@ impl Config {
     }
 
     /// Replaces "@name" colors with their value from the theme file.
-    /// Never fatal: on any problem the color falls back to its default and
-    /// a warning is returned (a theme generator may be rewriting the file).
-    pub fn apply_theme(&mut self) -> Vec<String> {
+    /// A relative `theme` path is taken from `config_dir`, the config file's
+    /// folder (not the folder the bar was started from). Never fatal: on any
+    /// problem the color falls back to its default and a warning is returned
+    /// (a theme generator may be rewriting the file).
+    pub fn apply_theme(&mut self, config_dir: &Path) -> Vec<String> {
         let mut warnings = Vec::new();
         let palette = if self.theme.is_empty() {
             crate::theme::Palette::new()
         } else {
-            let path = expand_tilde(&self.theme);
+            let path = config_dir.join(expand_tilde(&self.theme));
             match std::fs::read_to_string(&path) {
                 Ok(text) => crate::theme::parse(&text),
                 Err(e) => {
@@ -164,6 +170,7 @@ impl Config {
             ("on_accent", &mut c.on_accent, d.on_accent),
             ("border", &mut c.border, d.border),
             ("hover", &mut c.hover, d.hover),
+            ("weekend", &mut c.weekend, d.weekend),
         ] {
             match crate::theme::resolve(value, &palette) {
                 Ok(v) => *value = v,
@@ -232,6 +239,19 @@ pub fn expand_tilde(p: &str) -> PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn relative_theme_is_next_to_the_config() {
+        let dir = std::env::temp_dir().join(format!("calpop-test-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("colors.css"), "@define-color primary #123456;\n").unwrap();
+        let mut cfg = Config { theme: "colors.css".into(), ..Config::default() };
+        cfg.colors.accent = "@primary".into();
+        let warnings = cfg.apply_theme(&dir);
+        std::fs::remove_dir_all(&dir).unwrap();
+        assert!(warnings.is_empty(), "{warnings:?}");
+        assert_eq!(cfg.colors.accent, "#123456");
+    }
 
     /// The documented example must list every key with its real default:
     /// adding an option or changing a default without documenting it fails here.

@@ -119,7 +119,9 @@ margin_y = 6              # px from the bar
 size = 14                 # the whole popup scales with it
 ```
 
-A typo is reported, with the list of valid keys, instead of being ignored.
+A typo is reported, with the list of valid keys, instead of being ignored. A `locale` that is not
+installed is reported too, and the system's language is kept. Run `calpop` from a terminal to
+see these messages: launched from a bar, they go to the bar's log.
 
 ### Follow your theme
 
@@ -154,7 +156,8 @@ border     = "@selection"
 hover      = "@selection"
 ```
 
-If the file is missing or a name is unknown, calpop says which one and uses the default color.
+A relative path starts from the folder of `config.toml`. If the file is missing or a name is
+unknown, calpop says which one and uses the default color.
 
 ### Week numbers
 

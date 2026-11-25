@@ -58,6 +58,26 @@ fn main() -> glib::ExitCode {
         }
     }
 
+    // A popup this small gains nothing from the GPU renderers: cairo uses
+    // ~9 MB less memory (Vulkan 36 → cairo 27 MB, measured) for the same
+    // start-up time. The user's own GSK_RENDERER wins.
+    if std::env::var_os("GSK_RENDERER").is_none() {
+        // SAFETY: still single-threaded, GLib and GTK are not started yet.
+        unsafe { std::env::set_var("GSK_RENDERER", "cairo") };
+    }
+
+    // Single instance: a second launch only sends "activate" to the first
+    // one, which then closes. That makes the Waybar click a toggle. This is
+    // checked before reading the config, so a broken config.toml can't stop
+    // the popup from closing.
+    let app = gtk4::Application::new(Some(APP_ID), Default::default());
+    if let Err(e) = app.register(None::<&gtk4::gio::Cancellable>) {
+        return fail(&format!("can't register with D-Bus: {e}"));
+    }
+    if app.is_remote() {
+        return app.run_with_args(&["calpop"]);
+    }
+
     let path = config_path.unwrap_or_else(|| Config::default_dir().join("config.toml"));
     let mut cfg = match Config::load(&path) {
         Ok(c) => c,
@@ -66,28 +86,9 @@ fn main() -> glib::ExitCode {
     if let Err(e) = cfg.check() {
         return fail(&e);
     }
-    for w in cfg.apply_theme() {
+    let config_dir = path.parent().map(PathBuf::from).unwrap_or_default();
+    for w in cfg.apply_theme(&config_dir) {
         eprintln!("calpop: {w}");
-    }
-    // A popup this small gains nothing from the GPU renderers: cairo uses
-    // ~9 MB less memory (Vulkan 36 → cairo 27 MB, measured) for the same
-    // start-up time. The user's own GSK_RENDERER wins.
-    if std::env::var_os("GSK_RENDERER").is_none() {
-        // SAFETY: still single-threaded, GTK is not started yet.
-        unsafe { std::env::set_var("GSK_RENDERER", "cairo") };
-    }
-    if !cfg.locale.is_empty() {
-        // SAFETY: still single-threaded, GTK is not started yet. GTK's
-        // setlocale(LC_ALL, "") then picks this up for day and month names.
-        unsafe {
-            // LC_ALL would override LC_TIME: keep its value for the other
-            // categories through LANG, which LC_TIME does override.
-            if let Some(all) = std::env::var_os("LC_ALL").filter(|v| !v.is_empty()) {
-                std::env::set_var("LANG", all);
-                std::env::remove_var("LC_ALL");
-            }
-            std::env::set_var("LC_TIME", &cfg.locale);
-        }
     }
     // Optional raw CSS next to the config file, applied after the generated one.
     let user_css = path
@@ -96,15 +97,19 @@ fn main() -> glib::ExitCode {
         .and_then(|p| std::fs::read_to_string(p).ok())
         .unwrap_or_default();
 
-    // Single instance: a second launch only sends "activate" to the first
-    // one, which then closes. That makes the Waybar click a toggle.
-    let app = gtk4::Application::new(Some(APP_ID), Default::default());
     app.connect_activate(move |app| {
         if !app.windows().is_empty() {
             app.quit();
             return;
         }
-        // GTK has called setlocale() by now, so glibc can answer.
+        // GTK has called setlocale(LC_ALL, "") by now: only the names'
+        // language is left to change, then glibc can answer.
+        if !cfg.locale.is_empty() && !locale::set_time(&cfg.locale) {
+            eprintln!(
+                "calpop: locale \"{}\" is not installed (see locale -a); using the system's",
+                cfg.locale
+            );
+        }
         let (loc_first, loc_min) = locale::week_rules();
         let first_day = cfg.first_day_index().ok().flatten().unwrap_or(loc_first);
         let (rule_start, min_days) = match cfg.week_numbering.as_str() {
@@ -171,7 +176,7 @@ window.calpop-backdrop {{ background-color: rgba(0, 0, 0, 0.01); }}
 .calpop-root .weekday {{ color: {muted}; font-size: {small}px; font-weight: bold; padding: 6px 0 2px 0; }}
 .calpop-root .week {{ color: alpha({muted}, 0.7); font-size: {small}px; padding-right: 6px; }}
 .calpop-root .day {{ min-width: {cell}px; min-height: {cell}px; border-radius: 999px; }}
-.calpop-root .day.weekend {{ color: mix({fg}, {muted}, 0.45); }}
+.calpop-root .day.weekend {{ color: {weekend}; }}
 .calpop-root .day.other {{ color: alpha({muted}, 0.45); }}
 .calpop-root .day.today {{ background-color: {accent}; color: {on_accent}; font-weight: bold; }}
 .calpop-root .footer {{ color: {muted}; font-size: {small}px; margin-top: 6px; }}
@@ -185,6 +190,7 @@ window.calpop-backdrop {{ background-color: rgba(0, 0, 0, 0.01); }}
         on_accent = c.on_accent,
         border = c.border,
         hover = c.hover,
+        weekend = if c.weekend.is_empty() { &c.muted } else { &c.weekend },
         radius = cfg.style.radius,
         btn_radius = cfg.style.radius.min(12),
         nav = size * 3 / 2,
@@ -467,7 +473,8 @@ fn build_window(app: &gtk4::Application, cfg: &Config, w: Weeks) {
     {
         let win = win.clone();
         keys.connect_key_pressed(move |_, key, _, _| {
-            match key {
+            // Lower case: Caps Lock or Shift must not disable q, h/j/k/l, t.
+            match key.to_lower() {
                 gdk::Key::Escape | gdk::Key::q => win.application().map_or((), |a| a.quit()),
                 gdk::Key::Left | gdk::Key::h | gdk::Key::Page_Up => go(Some(-1)),
                 gdk::Key::Right | gdk::Key::l | gdk::Key::Page_Down => go(Some(1)),

@@ -15,13 +15,15 @@ week_numbering = "iso"    # iso    = ISO 8601 (Europe): week 1 holds the first T
 reverse_scroll = false    # true: wheel down = previous month
 footer = true             # today's full date at the bottom (click: back to today)
 locale = ""               # language of day and month names, e.g. "en_US.UTF-8"
-                          # empty = your system's LC_TIME; must be installed (locale -a)
+                          # empty = your system's LC_TIME; must be installed (locale -a),
+                          # otherwise calpop says so and keeps the system's
 
 # Theme file whose colors can be used below as "@name". Three formats are read:
 #   @define-color name #rrggbb;   (GTK, Waybar, matugen, wallust…)
 #   --name: #rrggbb;              (CSS variables, pywal…)
 #   name = "#rrggbb"              (Omarchy: ~/.config/omarchy/current/theme/colors.toml)
 # Read at each opening, so the popup follows a theme that changes with the wallpaper.
+# A relative path starts from the folder of this config file.
 theme = ""
 
 [position]
@@ -44,6 +46,7 @@ accent     = "#adc6ff"    # today
 on_accent  = "#102f60"    # text on today
 border     = "#33353a"
 hover      = "#2b2d33"
+weekend    = ""           # Saturdays and Sundays; empty = same as muted
 
 [style]
 radius = 16               # corner radius of the popup, in px
