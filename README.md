@@ -38,7 +38,7 @@ sudo apt install cargo libgtk-4-dev libgtk4-layer-shell-dev  # Debian 13, Ubuntu
 sudo dnf install cargo gtk4-devel gtk4-layer-shell-devel     # Fedora 43+
 ```
 
-If your distribution's Rust is older than 1.93 (Debian, Ubuntu), install a current one
+If your distribution's Rust is older than 1.93 (Debian 13 ships 1.85), install a current one
 with [rustup](https://rustup.rs) instead.
 
 ### From crates.io
